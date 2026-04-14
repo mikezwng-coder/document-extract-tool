@@ -28,8 +28,8 @@ Railway supports both the backend (Node.js) and frontend (static) in a single pr
    - Set root directory to `frontend`
    - Choose one deployment mode:
 
-- **Web Service with Dockerfile**: Railway will detect `frontend/Dockerfile`; do not set an output directory. Add `BACKEND_URL=https://your-backend-url.railway.app` so Nginx can proxy `/api` to the backend service. Do not manually override `PORT`; Railway injects it and the container now listens on that value.
-  - **Static Site / Nixpacks**: Set build command: `npm install && npm run build`, output directory: `dist`, and add `VITE_API_URL=https://your-backend-url.railway.app/api`
+- **Web Service with Dockerfile**: Railway will detect `frontend/Dockerfile`; do not set an output directory. Add `BACKEND_URL=https://your-backend-url.railway.app` so Nginx can proxy `/api` to the backend service. Set the Railway public networking target port to `80`.
+- **Static Site / Nixpacks**: Set build command: `npm install && npm run build`, output directory: `dist`, and add `VITE_API_URL=https://your-backend-url.railway.app/api`
 
 ### Option 2: Vercel (Frontend) + Railway (Backend)
 

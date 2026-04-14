@@ -26,12 +26,9 @@ Railway supports both the backend (Node.js) and frontend (static) in a single pr
 3. **Add the frontend service**:
    - Connect same repo
    - Set root directory to `frontend`
-   - Set build command: `npm install && npm run build`
-   - Set output directory: `dist`
-   - The Vite proxy won't work in production; update `frontend/src/services/api.ts`:
-     ```typescript
-     const API_BASE = import.meta.env.VITE_API_URL || "/api";
-     ```
+   - Choose one deployment mode:
+     - **Web Service with Dockerfile**: Railway will detect `frontend/Dockerfile`; do not set an output directory. Deploy the service as-is and Railway will build the image and serve the app through Nginx.
+     - **Static Site / Nixpacks**: Set build command: `npm install && npm run build` and output directory: `dist`
    - Add env var: `VITE_API_URL=https://your-backend-url.railway.app/api`
 
 ### Option 2: Vercel (Frontend) + Railway (Backend)
@@ -43,7 +40,10 @@ Railway supports both the backend (Node.js) and frontend (static) in a single pr
      ```json
      {
        "rewrites": [
-         { "source": "/api/:path*", "destination": "https://your-backend.railway.app/api/:path*" }
+         {
+           "source": "/api/:path*",
+           "destination": "https://your-backend.railway.app/api/:path*"
+         }
        ]
      }
      ```
@@ -66,32 +66,36 @@ Railway supports both the backend (Node.js) and frontend (static) in a single pr
 
 ## Environment Variables
 
-| Variable | Required | Production Value |
-|---|---|---|
-| `OPENAI_API_KEY` | Yes | Your OpenAI API key |
-| `NODE_ENV` | No | `production` |
-| `PORT` | No | `3001` (or platform-assigned) |
-| `FRONTEND_URL` | No | Your frontend URL (for CORS) |
-| `VITE_API_URL` | No | Your backend URL + `/api` (frontend env) |
+| Variable         | Required | Production Value                         |
+| ---------------- | -------- | ---------------------------------------- |
+| `OPENAI_API_KEY` | Yes      | Your OpenAI API key                      |
+| `NODE_ENV`       | No       | `production`                             |
+| `PORT`           | No       | `3001` (or platform-assigned)            |
+| `FRONTEND_URL`   | No       | Your frontend URL (for CORS)             |
+| `VITE_API_URL`   | No       | Your backend URL + `/api` (frontend env) |
 
 **Security Note**: Never commit `.env` files or API keys to version control.
 
 ## Production Considerations
 
 ### File Upload Handling
+
 - Max file size: 100MB (configurable via `MAX_FILE_SIZE` env var)
 - Files are stored temporarily during processing, then deleted
 - For serverless deployments, consider using `/tmp` storage
 
 ### CORS
+
 - In production, set `FRONTEND_URL` to your exact frontend domain
 - The backend only allows requests from this origin
 
 ### API Rate Limits
+
 - OpenAI GPT-4o-mini is called 4-6 times per document extraction
 - Consider implementing request queuing for high-traffic scenarios
 
 ### Error Handling
+
 - Backend returns structured error responses
 - Frontend displays toast-style error messages
 - Processing failures are reported via the status polling endpoint
